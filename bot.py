@@ -1,12 +1,17 @@
 import asyncio
 import re
+import os
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from telethon import TelegramClient, events
 
+# ===== የእርስዎ መረጃ =====
 API_ID = 35977988
 API_HASH = 'e8c0fa83d550cb5ecc48d34b87ea0f59'
-PHONE = '+251721386958'
+YOUR_PHONE = '+251721386958'
 TARGET_CHANNEL_ID = -1002844148426
 
+# ===== 5 ምንጭ ሰርጦች =====
 SOURCE_CHANNELS = [
     -1002250223737,
     -1002065550405,
@@ -14,6 +19,7 @@ SOURCE_CHANNELS = [
     -1001670686737,
 ]
 
+# ===== ሊወገዱ የሚገቡ ቃላት =====
 blocked_words = [
     "Sebrisat", "SEBRISAT", "sebrisat", "ሴብሪሳት",
     "@SebrisatBuy", "@SebrisatSecurity", "@SebrisatElectronics",
@@ -52,9 +58,22 @@ PROMOTION = """
 🌐 www.marshalom.com 🤖 @marshalom_bot 📞 0931556590
 """
 
+# ===== ይህ ሬንደር የሚፈትሸው ቀላል የWeb ሰርቨር ነው =====
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running!")
+
+def run_health_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    server.serve_forever()
+
+# ===== ዋናው የቴሌግራም ቦት ኮድ =====
 async def main():
     client = TelegramClient('marshalom_bot', API_ID, API_HASH)
-    await client.start(phone=PHONE)
+    await client.start(phone=YOUR_PHONE)
     print("✅ ተገናኝቷል! ለዘላለም እየሰራ ነው...")
 
     @client.on(events.NewMessage(chats=SOURCE_CHANNELS))
@@ -73,4 +92,9 @@ async def main():
 
     await client.run_until_disconnected()
 
-asyncio.run(main())
+# ===== ሁለቱንም ሂደቶች በአንድ ጊዜ ማስኬድ =====
+if __name__ == "__main__":
+    # የWeb ሰርቨሩን በተናጥል ክር (thread) ላይ አስኬድ
+    Thread(target=run_health_server, daemon=True).start()
+    # ዋናውን የቴሌግራም ቦት አስኬድ
+    asyncio.run(main())
