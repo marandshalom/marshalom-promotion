@@ -1,0 +1,14 @@
+from telethon import TelegramClient
+
+API_ID = 35977988
+API_HASH = 'e8c0fa83d550cb5ecc48d34b87ea0f59'
+PHONE = '+251721386958'
+
+async def main():
+    client = TelegramClient('marshalom_bot', API_ID, API_HASH)
+    await client.start(phone=PHONE)
+    print("✅ ሴሽን ተፈጥሯል!")
+    await client.disconnect()
+
+import asyncio
+asyncio.run(main())
