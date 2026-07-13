@@ -7,7 +7,7 @@ from telethon import TelegramClient, events
 # ===== የእርስዎ መረጃ =====
 API_ID = 35977988
 API_HASH = 'e8c0fa83d550cb5ecc48d34b87ea0f59'
-YOUR_PHONE = '+251721386958'
+BOT_TOKEN = '8600447897:AAExtZkgGO15u4tX81aHMiNRdlHSnunKi_M'
 TARGET_CHANNEL_ID = -1002844148426
 
 # ===== 2 ምንጭ ሰርጦች =====
@@ -40,10 +40,10 @@ def run_health_server():
 
 # ===== ዋናው የቦት ኮድ =====
 async def main():
-    # ሴሽን ፋይል ይጠቀም (ቶከን አይደለም!)
-    client = TelegramClient('marshalom_render_bot', API_ID, API_HASH)
-    await client.start(phone=YOUR_PHONE)
-    print("✅ ተገናኝቷል! እየሰራ ነው...")
+    # ቦት ቶከን ይጠቀም!
+    client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+    await client
+    print("✅ ቦቱ ተገናኝቷል! እየሰራ ነው...")
 
     @client.on(events.NewMessage(chats=SOURCE_CHANNELS))
     async def handler(event):
