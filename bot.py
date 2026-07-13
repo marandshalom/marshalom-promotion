@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 from threading import Thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telethon import TelegramClient, events
@@ -7,12 +8,42 @@ from telethon import TelegramClient, events
 # ===== የእርስዎ መረጃ =====
 API_ID = 35977988
 API_HASH = 'e8c0fa83d550cb5ecc48d34b87ea0f59'
-BOT_TOKEN = '8600447897:AAExtZkgGO15u4tX81aHMiNRdlHSnunKi_M'
-YOUR_USER_ID = 1577576513
+YOUR_PHONE = '+251721386958'
+TARGET_CHANNEL_ID = -1002844148426  # የእርስዎ ቻናል
 
-# ===== የእርስዎ የእውቂያ መረጃ =====
-YOUR_PHONE = '+251931556590'
-YOUR_CONTACT = '@ethiopiansecuritycamera'
+# ===== 2 ምንጭ ሰርጦች (Sebrisat እና HIKVISION) =====
+SOURCE_CHANNELS = [
+    'https://t.me/SebrisatElectronics',
+    'https://t.me/HIKVISION0',  # ወይም ትክክለኛውን ሊንክ አስገባ
+]
+
+# ===== ሊወገዱ የሚገቡ ቃላት (ሁሉም ጽሁፍ ይወገዳል) =====
+def remove_all_text(text):
+    # ሁሉንም ጽሁፍ አስወግድ - ባዶ መስመር ብቻ ይቀርሃል
+    return ""
+
+# ===== የእርስዎ ማስተዋወቂያ =====
+PROMOTION = """
+
+✨ እንኳን ደህና መጡ ወደ ማርሻሎም (Marshalom)! ✨
+እኛ በኤሌክትሮኒክስ እና በደህንነት ካሜራዎች ላይ ጥራት ያለው አገልግሎት የምንሰጥ ታማኝ የቴክኖሎጂ አጋርዎ ነን። ✅
+🚀 ዘመናዊ የደህንነት ካሜራዎች (CCTV) 📷 ጥራት ያላቸው ኤሌክትሮኒክስ እቃዎች 📺 ፈጣን እና አስተማማኝ አገልግሎት ⚡️
+📢 ለወቅታዊ መረጃዎች እና ምርጥ ቅናሾች ቻናላችንን ይቀላቀሉ!
+🌐 ድር ጣቢያችንን ይጎብኙ፡ www.marshalom.com
+🤖 ጥያቄ ካለዎት የኛን አውቶማቲክ ረዳት ያናግሩ፡ @marshalom_bot
+📞 ለበለጠ መረጃ ይደውሉልን፡ 0931556590
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 ስለ ምርቱ የበለጠ ለማወቅ እና ዋጋ ለማግኘት፦
+👉 @ethiopiansecuritycamera ላይ ይጻፉልን
+👉 ወይም ይህን ሊንክ ይጫኑ፦
+🔗 https://t.me/ethiopiansecuritycamera
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔹 For product details and price:
+👉 Contact us on @ethiopiansecuritycamera
+👉 Or click this link: https://t.me/ethiopiansecuritycamera
+"""
 
 # ===== የWeb ሰርቨር (ለRender ፖርት) =====
 class HealthHandler(BaseHTTPRequestHandler):
@@ -28,50 +59,24 @@ def run_health_server():
 
 # ===== ዋናው የቦት ኮድ =====
 async def main():
-    bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
-    await bot
-    print("✅ ቦቱ ተገናኝቷል! እየሰራ ነው...")
+    client = TelegramClient('marshalom_render_bot', API_ID, API_HASH)
+    await client.start(phone=YOUR_PHONE)
+    print("✅ ተገናኝቷል! እየሰራ ነው...")
 
-    @bot.on(events.NewMessage)
+    @client.on(events.NewMessage(chats=SOURCE_CHANNELS))
     async def handler(event):
         try:
-            customer_message = event.message.text
-            customer_name = event.sender.username if event.sender else "Unknown"
-            customer_id = event.sender_id
-            
-            # 1. መልእክቱን ወደ አንተ ላክ
-            await bot.send_message(
-                YOUR_USER_ID,
-                f"📩 **አዲስ መልእክት ከደንበኛ!**\n\n"
-                f"👤 ደንበኛ: @{customer_name}\n"
-                f"🆔 መታወቂያ: `{customer_id}`\n"
-                f"💬 መልእክት: {customer_message}\n\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"📌 ምርቱን ለማየት:\n"
-                f"👉 https://t.me/MarshalomTech\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"📞 መልስ ለመስጠት ደንበኛውን ያግኙ"
-            )
-            
-            # 2. ደንበኛው አንተን እንዲያገኝ መልስ ስጥ
-            await event.reply(
-                f"✅ መልእክትዎ ተደርሷል!\n\n"
-                f"📞 እባክዎ በዚህ ቁጥር ይደውሉ ወይም ይጻፉልን:\n"
-                f"📱 {YOUR_PHONE}\n"
-                f"🔗 {YOUR_CONTACT}\n\n"
-                f"📌 ስለ ምርቱ የበለጠ ለማወቅ:\n"
-                f"👉 https://t.me/MarshalomTech\n\n"
-                f"✅ Your message has been received!\n"
-                f"📞 Please contact us at:\n"
-                f"📱 {YOUR_PHONE}\n"
-                f"🔗 {YOUR_CONTACT}"
-            )
-            
-            print(f"✅ መልእክት ከ @{customer_name} ተቀብሏል!")
+            msg = event.message
+            # ፎቶ (photo) ብቻ ያስተላልፍ
+            if msg.photo:
+                # ሁሉንም ጽሁፍ አስወግድ - ፎቶ ብቻ!
+                final_text = PROMOTION
+                await client.send_message(TARGET_CHANNEL_ID, final_text, file=msg.photo)
+                print(f"✅ አዲስ ፎቶ ተልኳል!")
         except Exception as e:
             print(f"❌ ስህተት: {e}")
 
-    await bot.run_until_disconnected()
+    await client.run_until_disconnected()
 
 # ===== ሁለቱንም አብሮ አስኬድ =====
 if __name__ == "__main__":
