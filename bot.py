@@ -2,28 +2,23 @@ import asyncio
 import re
 from telethon import TelegramClient, events
 
-# ===== የእርስዎ መረጃ =====
 API_ID = 35977988
 API_HASH = 'e8c0fa83d550cb5ecc48d34b87ea0f59'
-YOUR_PHONE = '+251721386958'
+PHONE = '+251721386958'
 TARGET_CHANNEL_ID = -1002844148426
 
-# ===== 5 ምንጭ ሰርጦች =====
 SOURCE_CHANNELS = [
-    -1002250223737,   # Sebrisat Security Solutions
-    -1002065550405,   # EHSAN ENGINEERING
-    -1002155573697,   # SeniyaGeneraleElecteronics
-    -1001670686737,   # Mr Shemsu
+    -1002250223737,
+    -1002065550405,
+    -1002155573697,
+    -1001670686737,
 ]
 
-# ===== ሊወገዱ የሚገቡ ቃላት =====
 blocked_words = [
     "Sebrisat", "SEBRISAT", "sebrisat", "ሴብሪሳት",
     "@SebrisatBuy", "@SebrisatSecurity", "@SebrisatElectronics",
-    "Seniya", "SENIYA", "seniya",
-    "EHSAN", "Ehsan", "ehsan",
-    "TREKPLC", "trekplc", "Trekplc",
-    "Mr Shemsu", "mrshemsu", "Shemsu",
+    "Seniya", "SENIYA", "seniya", "EHSAN", "Ehsan", "ehsan",
+    "TREKPLC", "trekplc", "Trekplc", "Mr Shemsu", "mrshemsu",
     "HIKVISION", "Hikvision", "hikvision",
     "@trekplc", "@mrshemsu",
     "መርካቶ", "መገናኛ", "ቦሌ", "ሲኤምሲ", "ካዛንቺስ",
@@ -59,7 +54,7 @@ PROMOTION = """
 
 async def main():
     client = TelegramClient('marshalom_bot', API_ID, API_HASH)
-    await client.start(phone=YOUR_PHONE)
+    await client.start(phone=PHONE)
     print("✅ ተገናኝቷል! ለዘላለም እየሰራ ነው...")
 
     @client.on(events.NewMessage(chats=SOURCE_CHANNELS))
